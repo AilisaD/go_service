@@ -1,13 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func TestMain_HandleRequests(t *testing.T){
+func TestMain_HandleRequests(t *testing.T) {
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -23,10 +24,10 @@ func TestMain_HandleRequests(t *testing.T){
 
 	expected := document{}
 	json.Unmarshal(rr.Body.Bytes(), &expected)
-	if expected.Id != 0 {
-		t.Errorf("handler returned unexpected body: got %d want %d", expected.Id, 0)
+	if bytes.Equal(expected.Byte, []byte{}) {
+		t.Errorf("handler returned unexpected body: got %d want %d", expected.Byte, []byte("Hello world"))
 	}
-	if expected.Text != "Hello world"{
-		t.Errorf("handler returned unexpected body: got %s want %s", expected.Text, "Hello world")
+	if expected.Name != "Hello world" {
+		t.Errorf("handler returned unexpected body: got %s want %s", expected.Name, "Hello world")
 	}
 }
