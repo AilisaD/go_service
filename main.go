@@ -1,25 +1,24 @@
 package main
 
 import (
-	"bufio"
-	"code.sajari.com/docconv"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
 type document struct {
-	UId        uuid.UUID `json:"uid"`
+	UUId       uuid.UUID `json:"uuid"`
 	Name       string    `json:"name"`
 	TimeUpload time.Time `json:"uploaded_at"`
 }
 
 type word struct {
-	UId         uuid.UUID `json:"uid"`
+	UUId        uuid.UUID `json:"uuid"`
 	IdParagraph int64     `json:"paragraph"`
 	IdSentence  int64     `json:"sentence"`
 	Word        string    `json:"word"`
@@ -39,12 +38,12 @@ type TextU []wordU
 
 var documents = allDocuments{
 	{
-		UId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:       uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		Name:       "Test",
 		TimeUpload: time.Now(),
 	},
 	{
-		UId:        uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:       uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
 		Name:       "Test1",
 		TimeUpload: time.Now(),
 	},
@@ -52,105 +51,105 @@ var documents = allDocuments{
 
 var texts = Text{
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "Я",
 		IdTag:       1,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "тебя",
 		IdTag:       3,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "люблю",
 		IdTag:       2,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        ".",
 		IdTag:       0,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  2,
 		Word:        "А",
 		IdTag:       0,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  2,
 		Word:        "я",
 		IdTag:       1,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  2,
 		Word:        "тебя",
 		IdTag:       3,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  2,
 		Word:        "нет",
 		IdTag:       2,
 	},
 	{
-		UId:         uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("612f3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  2,
 		Word:        ".",
 		IdTag:       0,
 	},
 	{
-		UId:         uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "Этот",
 		IdTag:       4,
 	},
 	{
-		UId:         uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "текст",
 		IdTag:       1,
 	},
 	{
-		UId:         uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "ни",
 		IdTag:       0,
 	},
 	{
-		UId:         uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "о",
 		IdTag:       0,
 	},
 	{
-		UId:         uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "чем",
 		IdTag:       3,
 	},
 	{
-		UId:         uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
+		UUId:        uuid.MustParse("122a3c40-5d3b-217e-707b-6a546a3d7b29"),
 		IdParagraph: 1,
 		IdSentence:  1,
 		Word:        "?",
@@ -160,24 +159,26 @@ var texts = Text{
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(document{UId: uuid.New(), Name: "Hello world", TimeUpload: time.Now()})
+	json.NewEncoder(w).Encode(document{UUId: uuid.New(), Name: "Hello world", TimeUpload: time.Now()})
 }
 
 func uploadDocument(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(1000000)
-	file, handler, err := r.FormFile("file")
+	_, handler, err := r.FormFile("file")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer file.Close()
-	reader := bufio.NewReader(file)
-	resp, _, err := docconv.ConvertDocx(reader)
-	if err != nil {
-		fmt.Errorf("got error = %v, want nil", err)
+	if strings.Contains(handler.Filename, ".docx") {
+		//defer file.Close()
+		//reader := bufio.NewReader(file)
+		//resp, _, err := docconv.ConvertDocx(reader)
+		if err != nil {
+			fmt.Errorf("got error = %v, want nil", err)
+		}
+		documents = append(documents, document{UUId: uuid.New(), Name: handler.Filename, TimeUpload: time.Now()})
+		//json.NewEncoder(w).Encode(resp)
 	}
-	documents = append(documents, document{UId: uuid.New(), Name: handler.Filename, TimeUpload: time.Now()})
-	json.NewEncoder(w).Encode(resp)
 }
 
 func getDocuments(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +191,7 @@ func getDocText(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	resp := TextU{}
 	for _, item := range texts {
-		if item.UId == uuid.MustParse(params["id"]) {
+		if item.UUId == uuid.MustParse(params["id"]) {
 			resp = append(resp, wordU{IdParagraph: item.IdParagraph, IdSentence: item.IdSentence, Word: item.Word, IdTag: item.IdTag})
 		}
 	}
